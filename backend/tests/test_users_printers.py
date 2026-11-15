@@ -74,3 +74,41 @@ def test_invalid_printer_payload(admin_client):
         },
     )
     assert invalid_slug.status_code == 422
+
+
+def test_printer_queue_lifecycle(admin_client, monkeypatch):
+    calls: list[tuple] = []
+
+    def fake_add(name, device_uri, driver_mode):
+        calls.append(("add", name, device_uri, driver_mode))
+        return True
+
+    def fake_remove(name):
+        calls.append(("remove", name))
+        return True
+
+    monkeypatch.setattr("app.api.printers.cups.add_printer", fake_add)
+    monkeypatch.setattr("app.api.printers.cups.remove_printer", fake_remove)
+    monkeypatch.setattr("app.api.printers.cups.printer_status", lambda name: "idle")
+
+    created = admin_client.post(
+        "/api/printers",
+        json={
+            "name": f"Queue-{uuid4().hex[:6]}",
+            "device_uri": "ipp://192.0.2.40/ipp/print",
+        },
+    )
+    assert created.status_code == 201
+    printer = created.json()
+    assert printer["status"] == "idle"
+    assert calls[0][0] == "add"
+
+    patched = admin_client.patch(
+        f"/api/printers/{printer['id']}",
+        json={"device_uri": "ipps://192.0.2.40/ipp/print"},
+    )
+    assert patched.status_code == 200
+    assert calls[-1][0] == "add"
+
+    assert admin_client.delete(f"/api/printers/{printer['id']}").status_code == 204
+    assert calls[-1] == ("remove", printer["slug"])
