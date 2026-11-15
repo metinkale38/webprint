@@ -75,9 +75,11 @@ Browser ──HTTP──> FastAPI ──> SQLite (data/app.db)
 
 ## Sicherheit
 
-- Argon2id/bcrypt, JWT Access + Refresh (HttpOnly, Secure, SameSite=Strict), CSRF-Schutz, Login-Rate-Limit
+- Argon2id/bcrypt, JWT Access + Refresh (HttpOnly, Secure, SameSite=Strict); SameSite=Strict plus CORS-Beschränkung als CSRF-Schutz
+- Login-Rate-Limit: max. 5 Fehlversuche pro Minute je IP+Benutzername; erfolgreicher Login setzt den Zähler zurück
 - Rollen-Guards, Upload-Typ/-Größe (Magic Bytes), UUID-Dateinamen, Bereinigung alter Uploads
-- ORM-only (keine String-SQL), Security-Header, CORS nur Same-Origin
+- Validierung: Geräte-URI-Schemata (`ipp`/`ipps`/`lpd`/`socket`/`dnssd`/`cups-pdf`), Drucker-Slugs, Seitenbereiche, Kopien 1–99
+- Request-Größenlimit per `Content-Length`, Security-Header inkl. CSP, ORM-only (keine String-SQL), CORS nur Same-Origin
 - HTTPS optional hinter Reverse Proxy; Container nur im LAN
 
 ## Testing
