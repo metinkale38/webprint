@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "deepseek/deepseek-flash",
+  "small_model": "deepseek/deepseek-flash",
+  "instructions": [
+    "AGENTS.md",
+    "docs/architecture.md",
+    "docs/agent-workflow.md"
+  ],
+  "default_agent": "architect"
+}

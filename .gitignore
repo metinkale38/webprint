@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/playwright-report/
+frontend/test-results/
+frontend/blob-report/
+frontend/.cache/
+
+# Daten / Uploads / Runtime
+data/
+uploads/
+*.db
+*.db-shm
+*.db-wal
+.env
+.env.local
+.env.*.local
+
+# CUPS Runtime
+cups-spool/
+cups-log/
+cups-config/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo

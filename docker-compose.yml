@@ -1,0 +1,30 @@
+services:
+  app:
+    build:
+      context: .
+    image: printtool:latest
+    container_name: printtool
+    network_mode: host
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      TZ: ${TIMEZONE:-Europe/Berlin}
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+      - cups-config:/etc/cups
+      - cups-spool:/var/spool/cups
+      - cups-log:/var/log/cups
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  cups-config:
+  cups-spool:
+  cups-log:

@@ -1,0 +1,82 @@
+# Architektur PrintTool
+
+Stand: 2026-11-15 (M0)
+
+## Übersicht
+
+Ein Docker-Container mit zwei Prozessen:
+
+- `cupsd` – CUPS-Daemon, Queues, Treiber, Spool
+- `uvicorn` – FastAPI-Anwendung, ausliefert die Vue-3-SPA und die JSON-API
+
+`network_mode: host` ist Pflicht, damit mDNS und Subnetz-Scans funktionieren.
+
+```
+Browser ──HTTP──> FastAPI ──> SQLite (data/app.db)
+                    │
+                    ├──> CUPS HTTP/IPP (localhost:631) + CLI (lp, lpadmin, lpstat, ipptool)
+                    └──> Discovery (zeroconf mDNS + asyncio TCP-Scan + optional SNMP)
+```
+
+## Tech-Stack
+
+- **Backend:** Python 3.12+, FastAPI, Uvicorn, SQLAlchemy 2, Alembic, Pydantic v2, PyJWT, passlib/argon2-cffi, python-multipart, zeroconf, pypdf, Pillow, httpx
+- **Frontend:** Vue 3, TypeScript, Vite, Tailwind CSS, Pinia, Vue Router, Chart.js (Stats), Playwright (E2E/visuell)
+- **Druck:** CUPS 2.4+, cups-filters, IPP Everywhere, `printer-driver-all`, HPLIP, Gutenprint
+- **Daten:** SQLite (Datei, Volume), Uploads als Dateien unter `uploads/` (ignoriert)
+
+## Datenmodell (Entwurf)
+
+- `users`: id, username (unique), password_hash, display_name, role (`admin`/`user`), active, created_at, last_login
+- `printers`: id, name, slug (unique), device_uri, protocol (`ipp`/`ipps`/`lpd`/`socket`), model, location, driver_mode, auto_discovered, enabled, status, capabilities (JSON), last_seen
+- `print_jobs`: id, user_id, printer_id, filename, options (JSON), pages, copies, color_mode, duplex, status, cups_job_id, error, created_at, started_at, finished_at
+- `settings`: key (PK), value
+- optional `audit_log`: id, user_id, action, entity, entity_id, created_at, meta (JSON)
+
+## API (Entwurf)
+
+- Auth: `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/logout`, `GET /api/auth/me`
+- Drucker: `GET/POST /api/printers`, `GET/PATCH/DELETE /api/printers/{id}`, `POST /api/printers/scan`, `GET /api/printers/{id}/capabilities`
+- Jobs: `POST /api/jobs` (multipart), `GET /api/jobs`, `GET /api/jobs/{id}`, `POST /api/jobs/{id}/cancel`
+- Nutzer (Admin): `GET/POST /api/users`, `GET/PATCH/DELETE /api/users/{id}`
+- Statistik: `GET /api/stats/overview`, `GET /api/stats/users`, `GET /api/stats/printers`, `GET /api/stats/export`
+- System: `GET /healthz`, `GET /api/settings`
+
+## Druckerkennung
+
+1. **mDNS/Bonjour** mit `zeroconf`: `_ipp._tcp`, `_ipps._tcp`, `_printer._tcp`, `_pdl-datastream._tcp`; TXT-Felder `ty`, `pdl`, `rp`, `adminurl`, `note`.
+2. **Aktiver Scan** (konfigurierbare Subnetze): TCP 631/515/9100, optional SNMP 161 (Printer-MIB/sysDescr).
+3. **IPP-Anreicherung** via `ipptool` (Get-Printer-Attributes): Farbe, Duplex, Formate, Auflösung, Papier, Toner.
+4. **Queue:** `lpadmin -p <slug> -v <uri> -m everywhere -E`; LPD `lpd://`, JetDirect `socket://` mit passendem Treiber.
+5. Deduplizierung über IP/URI; periodischer Re-Scan + manueller Scan; Admin-CRUD.
+
+## Druckoptionen-Mapping
+
+| UI-Option | CUPS |
+|---|---|
+| Kopien | `-n N` |
+| Seiten | `-P "1-5,8"` |
+| Doppelseitig | `-o sides=two-sided-long-edge` / `two-sided-short-edge` / `one-sided` |
+| N-up | `-o number-up=2|4|6|9|16` |
+| Farbe/SW | `-o print-color-mode=color|monochrome`; Fallback PPD `ColorModel`/`OutputMode` |
+| Papier | `-o media=A4|Letter|...` |
+| Qualität | `-o print-quality=3|4|5` (optional) |
+
+## Sicherheit
+
+- Argon2id/bcrypt, JWT Access + Refresh (HttpOnly, Secure, SameSite=Strict), CSRF-Schutz, Login-Rate-Limit
+- Rollen-Guards, Upload-Typ/-Größe (Magic Bytes), UUID-Dateinamen, Bereinigung alter Uploads
+- ORM-only (keine String-SQL), Security-Header, CORS nur Same-Origin
+- HTTPS optional hinter Reverse Proxy; Container nur im LAN
+
+## Testing
+
+- Backend: pytest (Unit/Integration, Testclient, temp DB)
+- Frontend: Vitest + Vue Test Utils, ESLint
+- E2E/visuell: Playwright (Mobile/Desktop, API-Mocks + echter CUPS mit virtuellem PDF-Drucker), Screenshot-Review durch `ux-e2e`
+
+## Deployment
+
+- `Dockerfile` (Multi-Stage: Node-Build → Ubuntu + CUPS + Python)
+- `docker-compose.yml`: `network_mode: host`, Volumes für `/etc/cups`, `/var/spool/cups`, `/var/log/cups`, `data/`, `uploads/`
+- Env: `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `JWT_SECRET`, `DISCOVERY_SUBNETS`, `DISCOVERY_INTERVAL`, `UPLOAD_MAX_MB`, `TIMEZONE`
