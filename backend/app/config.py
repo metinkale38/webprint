@@ -22,8 +22,12 @@ class Settings(BaseSettings):
     upload_max_mb: int = 50
     static_dir: Path = BASE_DIR / "static"
 
+    discovery_enabled: bool = True
+    discovery_mdns: bool = True
+    discovery_snmp: bool = False
     discovery_subnets: str = ""
     discovery_interval: int = 300
+    snmp_community: str = "public"
     timezone: str = "Europe/Berlin"
 
     cups_pdf_queue: str = ""

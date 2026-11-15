@@ -36,7 +36,7 @@ Browser ──HTTP──> FastAPI ──> SQLite (data/app.db)
 ## API (Entwurf)
 
 - Auth: `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/logout`, `GET /api/auth/me`
-- Drucker: `GET/POST /api/printers`, `GET/PATCH/DELETE /api/printers/{id}`, `POST /api/printers/scan`, `GET /api/printers/{id}/capabilities`
+- Drucker: `GET/POST /api/printers`, `GET/PATCH/DELETE /api/printers/{id}`, `POST /api/printers/scan`, `POST /api/printers/refresh`, `GET /api/printers/{id}/capabilities`
 - Jobs: `POST /api/jobs` (multipart), `GET /api/jobs`, `GET /api/jobs/{id}`, `POST /api/jobs/{id}/cancel`
 - Nutzer (Admin): `GET/POST /api/users`, `GET/PATCH/DELETE /api/users/{id}`
 - Statistik: `GET /api/stats/overview`, `GET /api/stats/users`, `GET /api/stats/printers`, `GET /api/stats/export`
@@ -44,11 +44,12 @@ Browser ──HTTP──> FastAPI ──> SQLite (data/app.db)
 
 ## Druckerkennung
 
-1. **mDNS/Bonjour** mit `zeroconf`: `_ipp._tcp`, `_ipps._tcp`, `_printer._tcp`, `_pdl-datastream._tcp`; TXT-Felder `ty`, `pdl`, `rp`, `adminurl`, `note`.
-2. **Aktiver Scan** (konfigurierbare Subnetze): TCP 631/515/9100, optional SNMP 161 (Printer-MIB/sysDescr).
-3. **IPP-Anreicherung** via `ipptool` (Get-Printer-Attributes): Farbe, Duplex, Formate, Auflösung, Papier, Toner.
+1. **mDNS/Bonjour** mit `zeroconf`: `_ipp._tcp`, `_ipps._tcp`, `_printer._tcp`, `_pdl-datastream._tcp`; TXT-Felder `ty`, `pdl`, `rp`, `note` werden zu Geräte-URI und Modell gemappt.
+2. **Aktiver Scan** (konfigurierbare Subnetze, max. 1024 Hosts pro Lauf): TCP 631/515/9100; optional SNMP via `snmpget` für sysName/sysDescr.
+3. **IPP-Anreicherung** via `ipptool` (Get-Printer-Attributes): Farbe, Duplex, Formate, Auflösung, Papier.
 4. **Queue:** `lpadmin -p <slug> -v <uri> -m everywhere -E`; LPD `lpd://`, JetDirect `socket://` mit passendem Treiber.
-5. Deduplizierung über IP/URI; periodischer Re-Scan + manueller Scan; Admin-CRUD.
+5. **Deduplizierung** pro Host, IPP/IPPS bevorzugt vor LPD/Socket; Treffer werden in SQLite gespeichert.
+6. **Hintergrund-Loop** (`DISCOVERY_ENABLED`, `DISCOVERY_INTERVAL`) und manueller Scan (`POST /api/printers/scan`) legen neue Drucker automatisch an und aktualisieren `last_seen`, Fähigkeiten und CUPS-Status. Fehlgeschlagene Queue-Anlagen werden beim nächsten Lauf erneut versucht.
 
 ## Druckoptionen-Mapping
 

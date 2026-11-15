@@ -28,10 +28,18 @@ export const usePrintersStore = defineStore('printers', {
         this.loading = false
       }
     },
-    async scan(): Promise<number> {
-      const { data } = await api.post<{ printers: unknown[] }>('/printers/scan')
+    async scan(): Promise<{ found: number; created: number; updated: number }> {
+      const { data } = await api.post<{
+        printers: unknown[]
+        created: number
+        updated: number
+      }>('/printers/scan')
       await this.fetch()
-      return data.printers.length
+      return {
+        found: data.printers.length,
+        created: data.created,
+        updated: data.updated,
+      }
     },
   },
 })
