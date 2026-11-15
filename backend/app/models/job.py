@@ -1,9 +1,14 @@
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 
 from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..db import Base
+
+if TYPE_CHECKING:
+    from .printer import Printer
+    from .user import User
 
 
 class PrintJob(Base):
@@ -27,3 +32,14 @@ class PrintJob(Base):
     )
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    user: Mapped["User"] = relationship("User", lazy="joined")
+    printer: Mapped["Printer"] = relationship("Printer", lazy="joined")
+
+    @property
+    def user_name(self) -> str:
+        return self.user.username if self.user else ""
+
+    @property
+    def printer_name(self) -> str:
+        return self.printer.name if self.printer else ""

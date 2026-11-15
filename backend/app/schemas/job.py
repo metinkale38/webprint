@@ -30,6 +30,8 @@ class JobOut(BaseModel):
     id: int
     user_id: int
     printer_id: int
+    user_name: str = ""
+    printer_name: str = ""
     filename: str
     options: dict
     pages: int
