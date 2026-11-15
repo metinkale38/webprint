@@ -35,6 +35,8 @@ export interface PrintJob {
   id: number
   user_id: number
   printer_id: number
+  user_name: string
+  printer_name: string
   filename: string
   options: Record<string, unknown>
   pages: number
