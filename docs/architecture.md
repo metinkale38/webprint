@@ -1,6 +1,6 @@
 # Architektur PrintTool
 
-Stand: 2026-11-15 (M0)
+Stand: 2026-11-15 (M8 / v0.8.0)
 
 ## Übersicht
 

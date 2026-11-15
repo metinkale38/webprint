@@ -112,16 +112,19 @@ Regel: Reasoning-Variante abschwächen, wenn die Aufgabe einfach ist (`docs`, Bo
 - M5 abgeschlossen: automatischer Session-Refresh, Druck-Flow mit Dateivalidierung/Größenanzeige/Erfolgslink, Auftragsliste mit Polling und Abbruch-Bestätigung, Komponenten-Tests.
 - M6 abgeschlossen: Admin-UI mit Drucker-/Nutzer-CRUD und Auftragsübersicht, Statistik mit Zeitraumfilter und Nutzer-/Drucker-Ansicht, Job-Antworten mit Nutzer-/Druckernamen.
 - M7 abgeschlossen: Playwright-E2E mit gemockten APIs (24 Tests in Mobile/Desktop), visuelle Screenshot-Baselines, echter Integrationslauf mit FastAPI-Backend + Vite, manuelle Drucker-Queues werden mit CUPS synchronisiert.
+- M8 abgeschlossen: Changelog, Release-/Deployment-Doku, CI-Workflow, Release-Kandidat `v0.8.0`.
 - Backend: 47 `pytest`-Tests grün; `/healthz`, Admin-Login, Nutzer-/Drucker-CRUD, Jobs, Statistik, Discovery und Queue-Lebenszyklus funktionieren.
 - Frontend: TypeScript-Check, Vite-Build und 6 Vitest-Tests grün; Playwright 24 gemockte + 1 Integrationstest grün.
 - Docker-Build in dieser Umgebung noch unverifiziert (Docker-Daemon für `docker run/build` gesperrt); `docker compose config` ist valide. CUPS-PDF-E2E braucht Docker.
-- Nächste Schritte: M8 Release (Doku, Changelog, Tag).
+- Nächster Schritt vor Produktivbetrieb: Docker-/CUPS-PDF-Verifikation auf dem Zielhost (`docs/release.md`).
 
 ## Wichtige Dateien
 
 - `AGENTS.md`: diese Datei
 - `docs/architecture.md`: Architektur, Datenmodell, APIs, CUPS-/Discovery-Design
 - `docs/testing.md`: Test-Pyramide, Playwright/Visual/Integration, CUPS-PDF
+- `docs/release.md`: Deployment, Backup, Abnahme-Checkliste
+- `CHANGELOG.md`: Versionshistorie
 - `docs/agent-workflow.md`: Agent-Ablauf, Eskalation, Commit-Disziplin
 - `.opencode/agent/*.md`: Agent-Definitionen (Modell, Variante, Prompt)
 - `backend/`, `frontend/`, `Dockerfile`, `docker-compose.yml`
