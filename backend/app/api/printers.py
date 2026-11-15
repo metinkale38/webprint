@@ -5,6 +5,7 @@ from ..db import get_db
 from ..models.printer import Printer
 from ..models.user import User
 from ..schemas.printer import PrinterCreate, PrinterOut, PrinterUpdate
+from ..services import cups
 from ..services.discovery import scan_and_sync, sync_statuses
 from ..utils import slugify
 from .deps import get_current_user, require_admin
@@ -32,6 +33,13 @@ def create_printer(
         raise HTTPException(status_code=409, detail="Drucker existiert bereits")
     printer = Printer(**payload.model_dump(exclude={"slug"}), slug=slug)
     db.add(printer)
+    db.commit()
+    db.refresh(printer)
+
+    if cups.add_printer(printer.slug, printer.device_uri, printer.driver_mode):
+        printer.status = cups.printer_status(printer.slug)
+    else:
+        printer.status = "offline"
     db.commit()
     db.refresh(printer)
     return printer
@@ -75,10 +83,22 @@ def update_printer(
     printer = db.get(Printer, printer_id)
     if printer is None:
         raise HTTPException(status_code=404, detail="Drucker nicht gefunden")
-    for field, value in payload.model_dump(exclude_unset=True).items():
+
+    changes = payload.model_dump(exclude_unset=True)
+    for field, value in changes.items():
         setattr(printer, field, value)
     db.commit()
     db.refresh(printer)
+
+    if "device_uri" in changes or "driver_mode" in changes or "enabled" in changes:
+        if printer.enabled and cups.add_printer(printer.slug, printer.device_uri, printer.driver_mode):
+            printer.status = cups.printer_status(printer.slug)
+        elif not printer.enabled:
+            printer.status = "disabled"
+        else:
+            printer.status = "offline"
+        db.commit()
+        db.refresh(printer)
     return printer
 
 
@@ -91,6 +111,7 @@ def delete_printer(
     printer = db.get(Printer, printer_id)
     if printer is None:
         raise HTTPException(status_code=404, detail="Drucker nicht gefunden")
+    cups.remove_printer(printer.slug)
     db.delete(printer)
     db.commit()
 

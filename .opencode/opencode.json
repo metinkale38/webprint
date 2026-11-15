@@ -5,7 +5,8 @@
   "instructions": [
     "AGENTS.md",
     "docs/architecture.md",
-    "docs/agent-workflow.md"
+    "docs/agent-workflow.md",
+    "docs/testing.md"
   ],
   "default_agent": "architect"
 }

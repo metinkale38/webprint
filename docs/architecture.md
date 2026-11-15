@@ -91,9 +91,11 @@ aktualisiert `GET /api/jobs/{id}` den Status direkt.
 
 ## Testing
 
-- Backend: pytest (Unit/Integration, Testclient, temp DB)
-- Frontend: Vitest + Vue Test Utils, ESLint
-- E2E/visuell: Playwright (Mobile/Desktop, API-Mocks + echter CUPS mit virtuellem PDF-Drucker), Screenshot-Review durch `ux-e2e`
+- Backend: pytest (Unit/Integration, Testclient, temp DB); CUPS-CLI in Tests durch Fake-Binaries ersetzt
+- Frontend: Vitest + Vue Test Utils, TypeScript-Check
+- E2E/visuell: Playwright (Mobile/Desktop, API-Mocks), Screenshot-Baselines und echter Integrationslauf mit FastAPI + Vite
+- CUPS-PDF: virtueller Drucker (`CUPS_PDF_QUEUE=printtool-pdf`) für Spool-/PDF-Prüfungen im Docker-Container
+- Details: `docs/testing.md`
 
 ## Deployment
 

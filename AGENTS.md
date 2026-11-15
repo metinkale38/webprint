@@ -111,15 +111,17 @@ Regel: Reasoning-Variante abschwächen, wenn die Aufgabe einfach ist (`docs`, Bo
 - M4 abgeschlossen: Job-Status-Sync mit CUPS (`lpstat -W not-completed/completed`, Hintergrund-Loop, Refresh beim Job-Abruf), Farboptions-Fallback (`ColorModel`/`OutputMode`), Frontend-Polling aktiver Aufträge.
 - M5 abgeschlossen: automatischer Session-Refresh, Druck-Flow mit Dateivalidierung/Größenanzeige/Erfolgslink, Auftragsliste mit Polling und Abbruch-Bestätigung, Komponenten-Tests.
 - M6 abgeschlossen: Admin-UI mit Drucker-/Nutzer-CRUD und Auftragsübersicht, Statistik mit Zeitraumfilter und Nutzer-/Drucker-Ansicht, Job-Antworten mit Nutzer-/Druckernamen.
-- Backend: 46 `pytest`-Tests grün; `/healthz`, Admin-Login, Nutzer-/Drucker-CRUD, Jobs, Statistik und Discovery-API funktionieren.
-- Frontend: TypeScript-Check, Vite-Build und 6 Vitest-Tests grün (portables Node im Testlauf).
-- Docker-Build in dieser Umgebung noch unverifiziert (Docker-Daemon für `docker run/build` gesperrt); `docker compose config` ist valide.
-- Nächste Schritte: M7 QA/E2E (Playwright, visuelle Tests), M8 Release.
+- M7 abgeschlossen: Playwright-E2E mit gemockten APIs (24 Tests in Mobile/Desktop), visuelle Screenshot-Baselines, echter Integrationslauf mit FastAPI-Backend + Vite, manuelle Drucker-Queues werden mit CUPS synchronisiert.
+- Backend: 47 `pytest`-Tests grün; `/healthz`, Admin-Login, Nutzer-/Drucker-CRUD, Jobs, Statistik, Discovery und Queue-Lebenszyklus funktionieren.
+- Frontend: TypeScript-Check, Vite-Build und 6 Vitest-Tests grün; Playwright 24 gemockte + 1 Integrationstest grün.
+- Docker-Build in dieser Umgebung noch unverifiziert (Docker-Daemon für `docker run/build` gesperrt); `docker compose config` ist valide. CUPS-PDF-E2E braucht Docker.
+- Nächste Schritte: M8 Release (Doku, Changelog, Tag).
 
 ## Wichtige Dateien
 
 - `AGENTS.md`: diese Datei
 - `docs/architecture.md`: Architektur, Datenmodell, APIs, CUPS-/Discovery-Design
+- `docs/testing.md`: Test-Pyramide, Playwright/Visual/Integration, CUPS-PDF
 - `docs/agent-workflow.md`: Agent-Ablauf, Eskalation, Commit-Disziplin
 - `.opencode/agent/*.md`: Agent-Definitionen (Modell, Variante, Prompt)
 - `backend/`, `frontend/`, `Dockerfile`, `docker-compose.yml`
