@@ -60,8 +60,12 @@ Siehe `.env.example`. Wichtige Variablen:
 | `DATABASE_URL` | SQLite-Pfad, im Container `sqlite:////app/data/app.db` |
 | `UPLOAD_DIR` | Upload-Verzeichnis, im Container `/app/uploads` |
 | `UPLOAD_MAX_MB` | Maximale Uploadgröße |
+| `DISCOVERY_ENABLED` | Periodische Druckererkennung ein/aus |
+| `DISCOVERY_MDNS` | mDNS/Bonjour-Erkennung ein/aus |
+| `DISCOVERY_SNMP` | SNMP-Anreicherung ein/aus (benötigt `snmpget`) |
 | `DISCOVERY_SUBNETS` | Kommagetrennte Subnetze für den aktiven Scan |
 | `DISCOVERY_INTERVAL` | Scan-Intervall in Sekunden |
+| `SNMP_COMMUNITY` | SNMP-Community (Default `public`) |
 | `COOKIE_SECURE` | `true` hinter HTTPS |
 | `CUPS_ADMIN` / `CUPS_PASSWORD` | Optionaler CUPS-WebUI-Zugang |
 | `CUPS_PDF_QUEUE` | Optionaler virtueller PDF-Drucker (z. B. `printtool-pdf` für E2E) |
@@ -78,4 +82,5 @@ Siehe `.env.example`. Wichtige Variablen:
 M0: Repo, Agent-Doku, Backend-/Frontend-Scaffold, Docker-/Playwright-Gerüst.
 M1: CUPS-Service (Queues, Status, IPP-Probe), Entrypoint und virtueller PDF-Drucker.
 M2: API-Härtung (Rate-Limit, Security-Header, Validierung), Nutzer-/Drucker-CRUD, Jobs/Statistik.
-Nächste Meilensteine: Discovery, Druckjob-Status, Admin-UI, E2E/visuelle Tests.
+M3: Discovery per mDNS, Subnetz-Scan, optionale SNMP-Anreicherung und automatische Queue-Anlage.
+Nächste Meilensteine: Druckjob-Status, Admin-UI, E2E/visuelle Tests.
