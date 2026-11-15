@@ -103,3 +103,39 @@ def test_probe_ipp_parses_attributes(monkeypatch):
     assert attributes["color-supported"] is True
     assert attributes["sides-supported"] == ["one-sided", "two-sided-long-edge"]
     assert attributes["printer-state"] == "idle"
+
+
+def test_active_and_completed_job_ids(monkeypatch):
+    def fake_run(command, **_kwargs):
+        if "not-completed" in command:
+            return FakeResult(stdout="printer-1 user 123 date\nprinter-2 user 123 date\n")
+        if "completed" in command:
+            return FakeResult(stdout="printer-3 user 123 date\n")
+        return FakeResult()
+
+    monkeypatch.setattr(cups.subprocess, "run", fake_run)
+
+    assert cups.active_job_ids() == {"printer-1", "printer-2"}
+    assert cups.completed_job_ids() == {"printer-3"}
+
+
+def test_job_status(monkeypatch):
+    monkeypatch.setattr(cups, "active_job_ids", lambda: {"printer-1"})
+    monkeypatch.setattr(cups, "completed_job_ids", lambda: {"printer-2"})
+
+    assert cups.job_status("printer-1") == "processing"
+    assert cups.job_status("printer-2") == "completed"
+    assert cups.job_status("printer-3") == "unknown"
+
+
+def test_printer_options(monkeypatch):
+    output = (
+        "ColorModel/Color Mode: *Gray RGB\n"
+        "Duplex/Two-Sided: *None DuplexNoTumble DuplexTumble\n"
+    )
+    monkeypatch.setattr(cups.subprocess, "run", lambda *_args, **_kwargs: FakeResult(stdout=output))
+
+    options = cups.printer_options("test")
+
+    assert options["ColorModel"] == ["Gray", "RGB"]
+    assert options["Duplex"] == ["None", "DuplexNoTumble", "DuplexTumble"]
