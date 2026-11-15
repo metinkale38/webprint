@@ -13,6 +13,7 @@ from .db import Base, SessionLocal, engine
 from .models import PrintJob, Printer, Setting, User  # noqa: F401
 from .security import hash_password
 from .services.discovery import discovery_loop
+from .services.job_sync import job_sync_loop
 
 
 def bootstrap_admin() -> None:
@@ -40,17 +41,20 @@ async def lifespan(_app: FastAPI):
     Base.metadata.create_all(bind=engine)
     bootstrap_admin()
 
-    discovery_task = None
+    background_tasks = []
     if settings.discovery_enabled:
-        discovery_task = asyncio.create_task(discovery_loop(settings.discovery_interval))
+        background_tasks.append(asyncio.create_task(discovery_loop(settings.discovery_interval)))
+    if settings.job_sync_enabled:
+        background_tasks.append(asyncio.create_task(job_sync_loop(settings.job_sync_interval)))
 
     try:
         yield
     finally:
-        if discovery_task is not None:
-            discovery_task.cancel()
+        for task in background_tasks:
+            task.cancel()
+        for task in background_tasks:
             with suppress(asyncio.CancelledError):
-                await discovery_task
+                await task
 
 
 app = FastAPI(title="PrintTool API", version="0.1.0", lifespan=lifespan)

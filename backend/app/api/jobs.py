@@ -13,6 +13,7 @@ from ..models.printer import Printer
 from ..models.user import User
 from ..schemas.job import JobOptions, JobOut
 from ..services.cups import cancel_job, submit_job
+from ..services.job_sync import refresh_job
 from ..services.print_job import build_lp_options
 from .deps import get_current_user
 
@@ -141,7 +142,7 @@ def get_job(
         raise HTTPException(status_code=404, detail="Auftrag nicht gefunden")
     if user.role != "admin" and job.user_id != user.id:
         raise HTTPException(status_code=403, detail="Kein Zugriff")
-    return job
+    return refresh_job(db, job)
 
 
 @router.post("/{job_id}/cancel", response_model=JobOut)

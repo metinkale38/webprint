@@ -11,6 +11,7 @@ os.environ["ADMIN_USERNAME"] = "admin"
 os.environ["ADMIN_PASSWORD"] = "test-password"
 os.environ["COOKIE_SECURE"] = "false"
 os.environ["DISCOVERY_ENABLED"] = "false"
+os.environ["JOB_SYNC_ENABLED"] = "false"
 
 import pytest
 from fastapi.testclient import TestClient
