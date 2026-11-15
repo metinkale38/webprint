@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from uuid import uuid4
 
 from tests.test_jobs import PDF
@@ -46,3 +47,30 @@ def test_stats_and_export(admin_client, user_client, monkeypatch):
     assert export.status_code == 200
     assert export.headers["content-type"].startswith("text/csv")
     assert "Nutzer" in export.text
+
+    today = date.today()
+    fenced = admin_client.get(
+        "/api/stats/overview",
+        params={
+            "start": (today - timedelta(days=1)).isoformat(),
+            "end": (today + timedelta(days=1)).isoformat(),
+        },
+    )
+    assert fenced.status_code == 200
+    assert fenced.json()["jobs"] >= 1
+
+    future = admin_client.get(
+        "/api/stats/overview",
+        params={"start": (today + timedelta(days=2)).isoformat()},
+    )
+    assert future.status_code == 200
+    assert future.json()["jobs"] == 0
+
+    invalid = admin_client.get(
+        "/api/stats/overview",
+        params={
+            "start": (today + timedelta(days=1)).isoformat(),
+            "end": today.isoformat(),
+        },
+    )
+    assert invalid.status_code == 422
