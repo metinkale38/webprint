@@ -10,10 +10,12 @@ os.environ["UPLOAD_DIR"] = str(_tmp / "uploads")
 os.environ["ADMIN_USERNAME"] = "admin"
 os.environ["ADMIN_PASSWORD"] = "test-password"
 os.environ["COOKIE_SECURE"] = "false"
+os.environ["DISCOVERY_ENABLED"] = "false"
 
 import pytest
 from fastapi.testclient import TestClient
 
+from app.db import Base, SessionLocal, engine
 from app.main import app
 from app.services.rate_limit import login_limiter
 
@@ -29,6 +31,13 @@ def reset_login_limiter():
 def client():
     with TestClient(app) as test_client:
         yield test_client
+
+
+@pytest.fixture()
+def db_session():
+    Base.metadata.create_all(bind=engine)
+    with SessionLocal() as session:
+        yield session
 
 
 @pytest.fixture()
