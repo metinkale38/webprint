@@ -42,9 +42,20 @@ def test_job_upload_and_cancel(admin_client, user_client, monkeypatch):
     assert job["copies"] == 2
     assert job["color_mode"] == "color"
 
+    me = user_client.get("/api/auth/me").json()
+    assert job["user_name"] == me["username"]
+    assert job["printer_name"] == printer["name"]
+
     listing = user_client.get("/api/jobs")
     assert listing.status_code == 200
-    assert any(item["id"] == job["id"] for item in listing.json())
+    assert any(
+        item["id"] == job["id"] and item["user_name"] == me["username"]
+        for item in listing.json()
+    )
+
+    all_jobs = admin_client.get("/api/jobs", params={"all_jobs": True})
+    assert all_jobs.status_code == 200
+    assert any(item["id"] == job["id"] for item in all_jobs.json())
 
     cancelled = user_client.post(f"/api/jobs/{job['id']}/cancel")
     assert cancelled.status_code == 200
