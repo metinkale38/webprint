@@ -1,68 +1,44 @@
 import { expect, test } from '@playwright/test'
 
-const admin = {
-  id: 1,
-  username: 'admin',
-  display_name: 'Administrator',
-  role: 'admin',
-  active: true,
-}
+import { adminUser, sampleJobs, samplePrinters } from './helpers'
 
-const printers = [
-  {
-    id: 1,
-    name: 'Testdrucker',
-    slug: 'testdrucker',
-    device_uri: 'ipp://192.0.2.10/ipp/print',
-    protocol: 'ipp',
-    model: 'PDF-Drucker',
-    location: 'Erdgeschoss',
-    driver_mode: 'everywhere',
-    auto_discovered: false,
-    enabled: true,
-    status: 'idle',
-    capabilities: {},
-  },
-]
+test('Druckauftrag mit Optionen über die UI erstellen', async ({ page }) => {
+  let postedBody = ''
 
-test.beforeEach(async ({ page }) => {
-  await page.route('**/api/auth/me', (route) => route.fulfill({ json: admin }))
-  await page.route('**/api/printers', (route) => route.fulfill({ json: printers }))
-  await page.route('**/api/jobs', async (route) => {
+  await page.route('**/api/auth/me', (route) => route.fulfill({ json: adminUser }))
+  await page.route('**/api/printers', (route) => route.fulfill({ json: samplePrinters }))
+  await page.route('**/api/jobs**', async (route) => {
     if (route.request().method() === 'POST') {
-      await route.fulfill({
-        status: 201,
-        json: {
-          id: 42,
-          user_id: 1,
-          printer_id: 1,
-          filename: 'test.pdf',
-          options: {},
-          pages: 1,
-          copies: 1,
-          color_mode: 'monochrome',
-          duplex: 'one-sided',
-          status: 'queued',
-          created_at: new Date().toISOString(),
-        },
-      })
+      postedBody = route.request().postDataBuffer()?.toString('utf8') ?? ''
+      await route.fulfill({ status: 201, json: sampleJobs[0] })
       return
     }
-    await route.fulfill({ json: [] })
+    await route.fulfill({ json: sampleJobs })
   })
-})
 
-test('Druckauftrag über die UI erstellen', async ({ page }) => {
   await page.goto('/print')
 
   await expect(page.getByRole('heading', { name: 'Drucken' })).toBeVisible()
-  await page.getByRole('button', { name: /Testdrucker/ }).click()
+  await page.getByRole('button', { name: /Büro-Drucker/ }).click()
   await page.setInputFiles('input[type="file"]', {
     name: 'test.pdf',
     mimeType: 'application/pdf',
     buffer: Buffer.from('%PDF-1.4\n%%EOF'),
   })
+
+  await page.getByRole('button', { name: 'Ändern' }).click()
+  await page.getByLabel('Kopien').fill('3')
+  await page.getByLabel('Doppelseitig').selectOption('two-sided-long-edge')
+  await page.getByRole('button', { name: 'Fertig' }).click()
+
   await page.getByRole('button', { name: 'Druckauftrag senden' }).click()
 
   await expect(page.getByText('Auftrag #42 wurde erstellt.')).toBeVisible()
+  expect(postedBody).toMatch(/name="copies"\r\n\r\n3/)
+  expect(postedBody).toMatch(/name="duplex"\r\n\r\ntwo-sided-long-edge/)
+
+  await page.getByRole('link', { name: 'Zu meinen Aufträgen' }).click()
+  await expect(page.getByRole('heading', { name: 'Meine Aufträge' })).toBeVisible()
+  await expect(page.getByText('angebot.pdf')).toBeVisible()
+  await expect(page.getByText('Fertig')).toBeVisible()
 })

@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test'
 
+import { mockLoggedOut } from './helpers'
+
 test('Login-Seite ist erreichbar', async ({ page }) => {
-  await page.route('**/api/auth/me', (route) => route.fulfill({ status: 401, json: {} }))
+  await mockLoggedOut(page)
 
   await page.goto('/login')
 

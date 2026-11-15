@@ -5,6 +5,8 @@ export default defineConfig({
   fullyParallel: true,
   timeout: 30_000,
   expect: { timeout: 5_000 },
+  outputDir: './test-results',
+  snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{arg}{ext}',
   use: {
     baseURL: 'http://127.0.0.1:5173',
     trace: 'on-first-retry',
@@ -17,7 +19,7 @@ export default defineConfig({
     timeout: 120_000,
   },
   projects: [
-    { name: 'mobile-safari', use: { ...devices['iPhone 13'] } },
+    { name: 'mobile-iphone', use: { ...devices['iPhone 13'], browserName: 'chromium' } },
     { name: 'mobile-chrome', use: { ...devices['Pixel 7'] } },
     { name: 'desktop-chrome', use: { ...devices['Desktop Chrome'] } },
   ],
