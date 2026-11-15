@@ -78,7 +78,7 @@ aktualisiert `GET /api/jobs/{id}` den Status direkt.
   gelesen und geparst (Farbe, Duplex, Formate, Auflösung, Papier).
 - Optionaler virtueller PDF-Drucker für Entwicklung/E2E:
   `CUPS_PDF_QUEUE=printtool-pdf` legt beim Start eine Queue mit `cups-pdf:/` an;
-  Ausgaben landen im Volume `./cups-pdf` (`/var/spool/cups-pdf`).
+  Ausgaben landen im Volume `./volumes/cups-pdf` (`/var/spool/cups-pdf`).
 
 ## Sicherheit
 
@@ -100,5 +100,5 @@ aktualisiert `GET /api/jobs/{id}` den Status direkt.
 ## Deployment
 
 - `Dockerfile` (Multi-Stage: Node-Build → Ubuntu + CUPS + Python)
-- `docker-compose.yml`: `network_mode: host`, Volumes für `/etc/cups`, `/var/spool/cups`, `/var/log/cups`, `cups-pdf/`, `data/`, `uploads/`
+- `docker-compose.yml`: `network_mode: host`, alle Volumes unter `./volumes/` (`data`, `uploads`, `cups-pdf`, `cups/config`, `cups/spool`, `cups/log`)
 - Env: `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `JWT_SECRET`, `DISCOVERY_SUBNETS`, `DISCOVERY_INTERVAL`, `UPLOAD_MAX_MB`, `TIMEZONE`, `CUPS_PDF_QUEUE`

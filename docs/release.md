@@ -41,15 +41,20 @@ CUPS_PDF_QUEUE=printtool-pdf
 docker compose up -d --build
 ```
 
-Ausgaben landen im Volume `./cups-pdf` (`/var/spool/cups-pdf`). Ideal für
+Ausgaben landen im Volume `./volumes/cups-pdf` (`/var/spool/cups-pdf`). Ideal für
 Abnahme-Tests ohne echten Drucker.
 
 ## Daten und Backup
 
-- SQLite: `./data/app.db`
-- Uploads: `./uploads/`
-- CUPS-Konfiguration/Spool/Logs: benannte Volumes `cups-config`, `cups-spool`, `cups-log`
-- Backup: Container stoppen, `data/` und `uploads/` sichern, optional CUPS-Volumes.
+- SQLite: `./volumes/data/app.db`
+- Uploads: `./volumes/uploads/`
+- CUPS-Konfiguration/Spool/Logs: `./volumes/cups/{config,spool,log}`
+- PDF-Ausgaben (Test): `./volumes/cups-pdf/`
+- Backup: Container stoppen und `./volumes/` komplett sichern.
+
+Beim ersten Start wird ein leeres `./volumes/cups/config` automatisch mit den
+CUPS-Standarddateien aus dem Image befüllt; bestehende Konfiguration bleibt
+erhalten.
 
 ## Upgrade
 

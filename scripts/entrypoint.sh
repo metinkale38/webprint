@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-mkdir -p /run/cups /var/spool/cups /var/log/cups /var/spool/cups-pdf /app/data /app/uploads
+mkdir -p /etc/cups /run/cups /var/spool/cups /var/log/cups /var/spool/cups-pdf /app/data /app/uploads
+
+if [ ! -f /etc/cups/cupsd.conf ] && [ -d /opt/cups-defaults ]; then
+  cp -a /opt/cups-defaults/. /etc/cups/
+fi
 
 cupsd
 

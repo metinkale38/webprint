@@ -3,6 +3,14 @@
 Alle nennenswerten Änderungen an PrintTool. Format orientiert sich an
 Keep a Changelog, Versionierung nach Semantic Versioning.
 
+## [Unreleased]
+
+### Geändert
+
+- Alle Compose-Volumes liegen gesammelt unter `./volumes/`
+  (`data`, `uploads`, `cups-pdf`, `cups/{config,spool,log}`).
+- Das CUPS-Config-Volume wird beim ersten Start aus den Image-Defaults befüllt.
+
 ## [0.8.1] – 2026-11-15
 
 ### Behoben

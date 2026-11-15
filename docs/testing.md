@@ -84,7 +84,7 @@ Für echte Spool-Tests den Container mit virtuellem PDF-Drucker starten:
 CUPS_PDF_QUEUE=printtool-pdf docker compose up -d --build
 ```
 
-Die Ausgaben landen im Volume `./cups-pdf` (`/var/spool/cups-pdf`). Damit lassen
+Die Ausgaben landen im Volume `./volumes/cups-pdf` (`/var/spool/cups-pdf`). Damit lassen
 sich PDF-Inhalt und Seitenzahl nach einem UI-Druck prüfen. In der aktuellen
 Sandbox ist `docker run/build` gesperrt; der Docker-CUPS-E2E-Lauf ist daher noch
 nicht verifiziert.

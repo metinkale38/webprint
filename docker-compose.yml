@@ -11,12 +11,12 @@ services:
     environment:
       TZ: ${TIMEZONE:-Europe/Berlin}
     volumes:
-      - ./data:/app/data
-      - ./uploads:/app/uploads
-      - ./cups-pdf:/var/spool/cups-pdf
-      - cups-config:/etc/cups
-      - cups-spool:/var/spool/cups
-      - cups-log:/var/log/cups
+      - ./volumes/data:/app/data
+      - ./volumes/uploads:/app/uploads
+      - ./volumes/cups-pdf:/var/spool/cups-pdf
+      - ./volumes/cups/config:/etc/cups
+      - ./volumes/cups/spool:/var/spool/cups
+      - ./volumes/cups/log:/var/log/cups
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/healthz"]
@@ -24,8 +24,3 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
-
-volumes:
-  cups-config:
-  cups-spool:
-  cups-log:

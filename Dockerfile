@@ -22,6 +22,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates tzdata \
     && rm -rf /var/lib/apt/lists/*
 
+RUN mkdir -p /opt/cups-defaults && cp -a /etc/cups/. /opt/cups-defaults/
+
 WORKDIR /app/backend
 COPY backend/requirements.txt /app/backend/requirements.txt
 RUN python3 -m venv /app/.venv \
