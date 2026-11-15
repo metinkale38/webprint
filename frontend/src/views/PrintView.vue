@@ -149,15 +149,16 @@ async function submit(): Promise<void> {
 
     <label class="card block cursor-pointer border-2 border-dashed border-slate-200">
       <span class="field-label">Datei</span>
+      <span class="btn-secondary w-full">Datei auswählen</span>
       <input
         ref="fileInput"
-        class="block w-full text-sm"
+        class="sr-only"
         type="file"
         accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
         @change="onFile"
       />
       <p class="mt-2 text-xs text-slate-500">PDF, JPG oder PNG · max. {{ MAX_FILE_MB }} MB</p>
-      <p v-if="file" class="mt-2 truncate text-sm font-medium text-brand-700">
+      <p v-if="file" class="mt-2 break-all text-sm font-medium text-brand-700">
         {{ file.name }} <span class="font-normal text-slate-500">({{ fileSize }})</span>
       </p>
       <p v-if="fileError" class="mt-2 text-sm text-red-700" role="alert">{{ fileError }}</p>
@@ -194,7 +195,7 @@ async function submit(): Promise<void> {
       <div class="flex items-center justify-between gap-3">
         <div class="min-w-0">
           <h2 class="font-semibold">Optionen</h2>
-          <p class="mt-1 truncate text-sm text-slate-500">{{ summary }}</p>
+          <p class="mt-1 text-sm text-slate-500">{{ summary }}</p>
           <p class="mt-1 text-xs text-slate-500">
             {{ selectedPrinter ? selectedPrinter.name : 'Kein Drucker gewählt' }}
           </p>
