@@ -1,6 +1,6 @@
 # Release & Deployment
 
-Stand: 2026-11-15 (v0.8.0)
+Stand: 2026-11-15 (v0.8.1)
 
 ## Voraussetzungen
 

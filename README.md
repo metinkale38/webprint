@@ -93,7 +93,7 @@ Siehe `.env.example`. Wichtige Variablen:
 
 ## Status
 
-**v0.8.0 – Release-Kandidat.** Alle geplanten Meilensteine sind umgesetzt:
+**v0.8.1 – Release-Kandidat.** Alle geplanten Meilensteine sind umgesetzt:
 
 - M0–M2: Repo/Agent-Doku, CUPS-Grundlage, API-Härtung und CRUD
 - M3–M4: Discovery (mDNS/Subnetz/SNMP), Auto-Queues, Job-Status-Sync

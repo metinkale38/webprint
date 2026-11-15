@@ -3,6 +3,13 @@
 Alle nennenswerten Änderungen an PrintTool. Format orientiert sich an
 Keep a Changelog, Versionierung nach Semantic Versioning.
 
+## [0.8.1] – 2026-11-15
+
+### Behoben
+
+- SPA-Fallback: direkte Aufrufe von `/admin`, `/stats`, `/jobs` und anderen
+  Frontend-Routen liefern wieder `index.html` statt 404.
+
 ## [0.8.0] – 2026-11-15
 
 Erster Release-Kandidat. Der Funktionsumfang ist vollständig; der Docker-Build
