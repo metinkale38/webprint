@@ -3,6 +3,12 @@
 Mobiler Druckserver für Netzwerkdrucker: CUPS im Docker-Container, FastAPI-Backend,
 Vue-3-WebUI (mobile-first, deutsch) und lokale Benutzerverwaltung.
 
+## Screenshots
+
+| Login | Drucken | Administration | Statistik |
+|---|---|---|---|
+| <img src="frontend/e2e/tests/__screenshots__/mobile-iphone/login.png" alt="Login" width="180" /> | <img src="frontend/e2e/tests/__screenshots__/mobile-iphone/print.png" alt="Drucken" width="180" /> | <img src="frontend/e2e/tests/__screenshots__/mobile-iphone/admin.png" alt="Administration" width="180" /> | <img src="frontend/e2e/tests/__screenshots__/mobile-iphone/stats.png" alt="Statistik" width="180" /> |
+
 ## Funktionen (Zielbild)
 
 - Automatische Druckerkennung per mDNS/Bonjour und Subnetz-Scan
@@ -79,18 +85,21 @@ Siehe `.env.example`. Wichtige Variablen:
 ## Architektur & Agenten
 
 - `docs/architecture.md`: Komponenten, Datenmodell, API, Druckoptionen
+- `docs/testing.md`: Test-Pyramide, Playwright, visuelle Tests, CUPS-PDF
+- `docs/release.md`: Deployment, Backup, Abnahme-Checkliste
 - `docs/agent-workflow.md`: Agent-Rollen, Ablauf, Commit-Regeln
 - `AGENTS.md`: verbindliche Projektregeln
 - `.opencode/agent/*.md`: Agent-Definitionen (alle `deepseek/deepseek-flash`)
 
 ## Status
 
-M0: Repo, Agent-Doku, Backend-/Frontend-Scaffold, Docker-/Playwright-Gerüst.
-M1: CUPS-Service (Queues, Status, IPP-Probe), Entrypoint und virtueller PDF-Drucker.
-M2: API-Härtung (Rate-Limit, Security-Header, Validierung), Nutzer-/Drucker-CRUD, Jobs/Statistik.
-M3: Discovery per mDNS, Subnetz-Scan, optionale SNMP-Anreicherung und automatische Queue-Anlage.
-M4: Job-Status-Sync mit CUPS, Farboptions-Fallback und Live-Polling der Aufträge.
-M5: Session-Refresh, verbesserter Druck-Flow, Auftrags-Polling und Komponenten-Tests.
-M6: Admin-UI für Drucker/Nutzer/Aufträge, Statistik mit Zeitraumfilter und CSV-Export.
-M7: Playwright-E2E (24 gemockte Tests), visuelle Screenshots, Integrationslauf mit echtem Backend.
-Nächster Meilenstein: Release.
+**v0.8.0 – Release-Kandidat.** Alle geplanten Meilensteine sind umgesetzt:
+
+- M0–M2: Repo/Agent-Doku, CUPS-Grundlage, API-Härtung und CRUD
+- M3–M4: Discovery (mDNS/Subnetz/SNMP), Auto-Queues, Job-Status-Sync
+- M5–M6: Mobile UI, Session-Refresh, Admin-UI, Statistik mit Zeitraumfilter
+- M7: Playwright-E2E, visuelle Baselines, echter Integrationslauf
+- M8: Changelog, Release-Doku, CI-Workflow
+
+Offen vor Produktivbetrieb: Docker-Build und CUPS-PDF-E2E auf dem Zielhost
+verifizieren (in der Sandbox war der Docker-Daemon gesperrt).

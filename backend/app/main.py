@@ -57,7 +57,7 @@ async def lifespan(_app: FastAPI):
                 await task
 
 
-app = FastAPI(title="PrintTool API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="PrintTool API", version="0.8.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
