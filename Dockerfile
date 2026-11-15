@@ -18,7 +18,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     cups cups-daemon cups-client cups-filters \
     printer-driver-all hplip printer-driver-gutenprint foomatic-db printer-driver-cups-pdf \
-    python3 python3-venv python3-pip \
+    snmp python3 python3-venv python3-pip \
     curl ca-certificates tzdata \
     && rm -rf /var/lib/apt/lists/*
 
