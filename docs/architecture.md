@@ -62,6 +62,17 @@ Browser ──HTTP──> FastAPI ──> SQLite (data/app.db)
 | Papier | `-o media=A4|Letter|...` |
 | Qualität | `-o print-quality=3|4|5` (optional) |
 
+## CUPS-Queues und virtueller PDF-Drucker
+
+- Jeder Drucker wird als CUPS-Queue mit sicherem Slug angelegt:
+  `lpadmin -p <slug> -v <uri> -m everywhere -E`, danach `cupsenable`/`cupsaccept`.
+- Status wird über `lpstat -p` gelesen (`idle`, `printing`, `disabled`, `offline`).
+- Fähigkeiten werden mit `ipptool -tv <uri> /usr/share/cups/ipptool/get-printer-attributes.test`
+  gelesen und geparst (Farbe, Duplex, Formate, Auflösung, Papier).
+- Optionaler virtueller PDF-Drucker für Entwicklung/E2E:
+  `CUPS_PDF_QUEUE=printtool-pdf` legt beim Start eine Queue mit `cups-pdf:/` an;
+  Ausgaben landen im Volume `./cups-pdf` (`/var/spool/cups-pdf`).
+
 ## Sicherheit
 
 - Argon2id/bcrypt, JWT Access + Refresh (HttpOnly, Secure, SameSite=Strict), CSRF-Schutz, Login-Rate-Limit
@@ -78,5 +89,5 @@ Browser ──HTTP──> FastAPI ──> SQLite (data/app.db)
 ## Deployment
 
 - `Dockerfile` (Multi-Stage: Node-Build → Ubuntu + CUPS + Python)
-- `docker-compose.yml`: `network_mode: host`, Volumes für `/etc/cups`, `/var/spool/cups`, `/var/log/cups`, `data/`, `uploads/`
-- Env: `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `JWT_SECRET`, `DISCOVERY_SUBNETS`, `DISCOVERY_INTERVAL`, `UPLOAD_MAX_MB`, `TIMEZONE`
+- `docker-compose.yml`: `network_mode: host`, Volumes für `/etc/cups`, `/var/spool/cups`, `/var/log/cups`, `cups-pdf/`, `data/`, `uploads/`
+- Env: `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `JWT_SECRET`, `DISCOVERY_SUBNETS`, `DISCOVERY_INTERVAL`, `UPLOAD_MAX_MB`, `TIMEZONE`, `CUPS_PDF_QUEUE`

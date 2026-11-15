@@ -105,10 +105,11 @@ Regel: Reasoning-Variante abschwächen, wenn die Aufgabe einfach ist (`docs`, Bo
 ## Aktueller Stand
 
 - M0 abgeschlossen: Git-Repo, Agent-Doku, Backend-/Frontend-Scaffold, Docker-/Compose-Gerüst, Playwright-Setup.
-- Backend: `pytest` grün, `/healthz` und Admin-Login funktionieren.
+- M1 abgeschlossen: CUPS-Service (Queue anlegen/entfernen, Status, IPP-Probe), Entrypoint mit optionalem PDF-Drucker, Compose-Volume `cups-pdf/`.
+- Backend: 14 `pytest`-Tests grün; `/healthz` und Admin-Login funktionieren.
 - Frontend: TypeScript-Check, Vite-Build und Vitest grün (portables Node im Testlauf).
 - Docker-Build in dieser Umgebung noch unverifiziert (Docker-Daemon für `docker run/build` gesperrt); `docker compose config` ist valide.
-- Nächste Schritte: M1 Docker/CUPS verdrahten, M2 API vervollständigen, M3 Discovery, M4 Druckjobs, M5 Frontend-Flows, M6 Admin, M7 QA/E2E, M8 Release.
+- Nächste Schritte: M2 API vervollständigen, M3 Discovery, M4 Druckjobs, M5 Frontend-Flows, M6 Admin, M7 QA/E2E, M8 Release.
 
 ## Wichtige Dateien
 
