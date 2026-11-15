@@ -77,4 +77,5 @@ Siehe `.env.example`. Wichtige Variablen:
 
 M0: Repo, Agent-Doku, Backend-/Frontend-Scaffold, Docker-/Playwright-Gerüst.
 M1: CUPS-Service (Queues, Status, IPP-Probe), Entrypoint und virtueller PDF-Drucker.
-Nächste Meilensteine: API-Vervollständigung, Discovery, Druckjobs, Admin-UI, E2E/visuelle Tests.
+M2: API-Härtung (Rate-Limit, Security-Header, Validierung), Nutzer-/Drucker-CRUD, Jobs/Statistik.
+Nächste Meilensteine: Discovery, Druckjob-Status, Admin-UI, E2E/visuelle Tests.

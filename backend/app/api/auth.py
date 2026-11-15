@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 import jwt
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 
 from ..db import get_db
@@ -16,16 +16,32 @@ from ..security import (
     set_auth_cookies,
     verify_password,
 )
+from ..services.rate_limit import login_limiter
 from .deps import get_current_user
 
 router = APIRouter()
 
 
 @router.post("/login", response_model=UserOut)
-def login(payload: LoginRequest, response: Response, db: Session = Depends(get_db)) -> User:
+def login(
+    payload: LoginRequest,
+    response: Response,
+    request: Request,
+    db: Session = Depends(get_db),
+) -> User:
+    client_host = request.client.host if request.client else "unknown"
+    rate_key = f"{client_host}:{payload.username.lower()}"
+    if not login_limiter.allow(rate_key):
+        raise HTTPException(
+            status_code=429,
+            detail="Zu viele Anmeldeversuche. Bitte später erneut versuchen.",
+        )
+
     user = db.query(User).filter(User.username == payload.username).first()
     if user is None or not user.active or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Ungültige Anmeldedaten")
+
+    login_limiter.reset(rate_key)
     user.last_login = datetime.now(timezone.utc)
     db.commit()
     db.refresh(user)
