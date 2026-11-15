@@ -5,7 +5,7 @@ from ..db import get_db
 from ..models.printer import Printer
 from ..models.user import User
 from ..schemas.printer import PrinterCreate, PrinterOut, PrinterUpdate
-from ..services.discovery import scan_network
+from ..services.discovery import scan_and_sync, sync_statuses
 from ..utils import slugify
 from .deps import get_current_user, require_admin
 
@@ -35,6 +35,22 @@ def create_printer(
     db.commit()
     db.refresh(printer)
     return printer
+
+
+@router.post("/scan")
+async def scan(
+    db: Session = Depends(get_db),
+    _admin: User = Depends(require_admin),
+) -> dict:
+    return await scan_and_sync(db)
+
+
+@router.post("/refresh")
+def refresh(
+    db: Session = Depends(get_db),
+    _admin: User = Depends(require_admin),
+) -> dict[str, int]:
+    return {"updated": sync_statuses(db)}
 
 
 @router.get("/{printer_id}", response_model=PrinterOut)
@@ -77,13 +93,6 @@ def delete_printer(
         raise HTTPException(status_code=404, detail="Drucker nicht gefunden")
     db.delete(printer)
     db.commit()
-
-
-@router.post("/scan")
-async def scan(
-    _admin: User = Depends(require_admin),
-) -> dict[str, list[dict]]:
-    return {"printers": await scan_network()}
 
 
 @router.get("/{printer_id}/capabilities")
