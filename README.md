@@ -47,7 +47,11 @@ npm run build
 npm run lint
 npm run test
 npx playwright test
+npx playwright test -c playwright.integration.config.ts
 ```
+
+Die gemockten Playwright-Tests und visuellen Screenshot-Baselines liegen unter
+`frontend/e2e/`. Details: `docs/testing.md`.
 
 ## Konfiguration
 
@@ -88,4 +92,5 @@ M3: Discovery per mDNS, Subnetz-Scan, optionale SNMP-Anreicherung und automatisc
 M4: Job-Status-Sync mit CUPS, Farboptions-Fallback und Live-Polling der Aufträge.
 M5: Session-Refresh, verbesserter Druck-Flow, Auftrags-Polling und Komponenten-Tests.
 M6: Admin-UI für Drucker/Nutzer/Aufträge, Statistik mit Zeitraumfilter und CSV-Export.
-Nächste Meilensteine: E2E/visuelle Tests, Release.
+M7: Playwright-E2E (24 gemockte Tests), visuelle Screenshots, Integrationslauf mit echtem Backend.
+Nächster Meilenstein: Release.
