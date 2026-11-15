@@ -87,4 +87,5 @@ M2: API-Härtung (Rate-Limit, Security-Header, Validierung), Nutzer-/Drucker-CRU
 M3: Discovery per mDNS, Subnetz-Scan, optionale SNMP-Anreicherung und automatische Queue-Anlage.
 M4: Job-Status-Sync mit CUPS, Farboptions-Fallback und Live-Polling der Aufträge.
 M5: Session-Refresh, verbesserter Druck-Flow, Auftrags-Polling und Komponenten-Tests.
-Nächste Meilensteine: Admin-UI, E2E/visuelle Tests, Release.
+M6: Admin-UI für Drucker/Nutzer/Aufträge, Statistik mit Zeitraumfilter und CSV-Export.
+Nächste Meilensteine: E2E/visuelle Tests, Release.

@@ -37,9 +37,9 @@ Browser ──HTTP──> FastAPI ──> SQLite (data/app.db)
 
 - Auth: `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/logout`, `GET /api/auth/me`
 - Drucker: `GET/POST /api/printers`, `GET/PATCH/DELETE /api/printers/{id}`, `POST /api/printers/scan`, `POST /api/printers/refresh`, `GET /api/printers/{id}/capabilities`
-- Jobs: `POST /api/jobs` (multipart), `GET /api/jobs`, `GET /api/jobs/{id}`, `POST /api/jobs/{id}/cancel`
+- Jobs: `POST /api/jobs` (multipart), `GET /api/jobs?all_jobs=true` (Admin), `GET /api/jobs/{id}`, `POST /api/jobs/{id}/cancel`; Antworten enthalten `user_name`/`printer_name`
 - Nutzer (Admin): `GET/POST /api/users`, `GET/PATCH/DELETE /api/users/{id}`
-- Statistik: `GET /api/stats/overview`, `GET /api/stats/users`, `GET /api/stats/printers`, `GET /api/stats/export`
+- Statistik: `GET /api/stats/overview|users|printers|export` mit optionalem `start=YYYY-MM-DD`/`end=YYYY-MM-DD`
 - System: `GET /healthz`, `GET /api/settings`
 
 ## Druckerkennung
