@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Abhängigkeiten installieren
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+      - name: pytest
+        working-directory: backend
+        run: pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Abhängigkeiten installieren
+        working-directory: frontend
+        run: npm ci
+      - name: Build und Vitest
+        working-directory: frontend
+        run: |
+          npm run build
+          npm run test
+      - name: Playwright installieren
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+      - name: E2E (gemockt, ohne visuelle Baselines)
+        working-directory: frontend
+        run: npx playwright test --grep-invert "visuell"
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Backend-Abhängigkeiten
+        run: pip install -r backend/requirements.txt
+      - name: Frontend-Abhängigkeiten
+        working-directory: frontend
+        run: npm ci
+      - name: Playwright installieren
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+      - name: Integrationstest
+        working-directory: frontend
+        env:
+          PRINTTOOL_BACKEND_CMD: python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+        run: npx playwright test -c playwright.integration.config.ts
