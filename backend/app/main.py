@@ -2,10 +2,9 @@ import asyncio
 from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse
 
 from .api import auth, jobs, printers, stats, system, users
 from .config import settings
@@ -57,7 +56,7 @@ async def lifespan(_app: FastAPI):
                 await task
 
 
-app = FastAPI(title="PrintTool API", version="0.8.0", lifespan=lifespan)
+app = FastAPI(title="PrintTool API", version="0.8.1", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -109,4 +108,19 @@ app.include_router(stats.router, prefix="/api/stats", tags=["stats"])
 
 static_dir = Path(settings.static_dir)
 if static_dir.exists():
-    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+    static_root = static_dir.resolve()
+    index_file = static_root / "index.html"
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def spa_fallback(full_path: str):
+        if full_path.startswith("api/") or full_path == "healthz":
+            raise HTTPException(status_code=404, detail="Nicht gefunden")
+
+        candidate = (static_root / full_path).resolve()
+        if candidate == static_root or static_root in candidate.parents:
+            if candidate.is_file():
+                return FileResponse(candidate)
+
+        if index_file.is_file():
+            return FileResponse(index_file)
+        raise HTTPException(status_code=404, detail="Nicht gefunden")

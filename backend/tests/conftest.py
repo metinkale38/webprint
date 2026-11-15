@@ -32,6 +32,10 @@ for _name, _script in _FAKE_SCRIPTS.items():
 os.environ["PATH"] = f"{_fake_bin}:{os.environ.get('PATH', '')}"
 
 _tmp = Path(tempfile.mkdtemp(prefix="printtool-test-"))
+_static = _tmp / "static"
+_static.mkdir()
+(_static / "index.html").write_text("<!doctype html><html><body>PrintTool Demo</body></html>")
+os.environ["STATIC_DIR"] = str(_static)
 os.environ["DATABASE_URL"] = f"sqlite:///{_tmp / 'test.db'}"
 os.environ["JWT_SECRET"] = "test-secret-with-at-least-32-bytes"
 os.environ["UPLOAD_DIR"] = str(_tmp / "uploads")
