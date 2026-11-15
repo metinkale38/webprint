@@ -28,8 +28,8 @@ async function scan(): Promise<void> {
   scanMessage.value = ''
   error.value = ''
   try {
-    const found = await printers.scan()
-    scanMessage.value = `${found} neue Drucker gefunden.`
+    const result = await printers.scan()
+    scanMessage.value = `${result.found} gefunden, ${result.created} neu, ${result.updated} aktualisiert.`
   } catch (reason: any) {
     error.value = reason?.response?.data?.detail ?? 'Scan fehlgeschlagen.'
   }
