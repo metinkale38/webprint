@@ -5,6 +5,11 @@ Keep a Changelog, Versionierung nach Semantic Versioning.
 
 ## [Unreleased]
 
+### Hinzugefügt
+
+- Traefik-Integration über das externe Netz `traefik`: HTTPS-Router über `HOST`,
+  Certresolver über `TRAEFIK_CERT_RESOLVER`, Caddy-Proxy für die Host-Netz-App.
+
 ### Geändert
 
 - Alle Compose-Volumes liegen gesammelt unter `./volumes/`

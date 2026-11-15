@@ -1,6 +1,6 @@
 # Architektur PrintTool
 
-Stand: 2026-11-15 (M8 / v0.8.0)
+Stand: 2026-11-15 (v0.8.1 + Traefik)
 
 ## Übersicht
 
@@ -12,11 +12,23 @@ Ein Docker-Container mit zwei Prozessen:
 `network_mode: host` ist Pflicht, damit mDNS und Subnetz-Scans funktionieren.
 
 ```
-Browser ──HTTP──> FastAPI ──> SQLite (data/app.db)
-                    │
-                    ├──> CUPS HTTP/IPP (localhost:631) + CLI (lp, lpadmin, lpstat, ipptool)
-                    └──> Discovery (zeroconf mDNS + asyncio TCP-Scan + optional SNMP)
+Browser ──HTTPS──> Traefik (externes Netz `traefik`)
+                         │
+                         ▼
+                  proxy (Caddy, Port 8080)
+                         │
+                         ▼
+              host.docker.internal:8000
+                         │
+                         ▼
+                  app (network_mode: host)
+                    ├──> SQLite (volumes/data/app.db)
+                    ├──> CUPS HTTP/IPP (localhost:631) + CLI
+                    └──> Discovery (zeroconf mDNS + TCP-Scan + optional SNMP)
 ```
+
+Der Proxy ist nötig, weil die App für mDNS/CUPS im Host-Netz bleiben muss und
+Traefik sie über das Docker-Netz nicht direkt erreichen kann.
 
 ## Tech-Stack
 
@@ -100,5 +112,5 @@ aktualisiert `GET /api/jobs/{id}` den Status direkt.
 ## Deployment
 
 - `Dockerfile` (Multi-Stage: Node-Build → Ubuntu + CUPS + Python)
-- `docker-compose.yml`: `network_mode: host`, alle Volumes unter `./volumes/` (`data`, `uploads`, `cups-pdf`, `cups/config`, `cups/spool`, `cups/log`)
+- `docker-compose.yml`: App mit `network_mode: host`, alle Volumes unter `./volumes/` (`data`, `uploads`, `cups-pdf`, `cups/config`, `cups/spool`, `cups/log`); Traefik-Proxy im externen Netz `traefik`
 - Env: `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `JWT_SECRET`, `DISCOVERY_SUBNETS`, `DISCOVERY_INTERVAL`, `UPLOAD_MAX_MB`, `TIMEZONE`, `CUPS_PDF_QUEUE`

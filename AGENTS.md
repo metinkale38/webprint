@@ -21,6 +21,7 @@ PrintTool ist ein mobiler Druckserver für Netzwerkdrucker:
 - **Keine Benutzer-Selbstregistrierung.** Nur Admin legt Nutzer an.
 - **UI-Sprache:** Deutsch.
 - **Host-Netzwerk ist Pflicht** für Druckerkennung (mDNS/Subnetz). Port 631 auf dem Host frei machen.
+- **Traefik/HTTPS:** Die App bleibt im Host-Netz; ein Caddy-Proxy im externen Netz `traefik` leitet an `host.docker.internal:8000` weiter. Traefik-Labels nur am Proxy, nicht an der Host-Netz-App.
 - **CUPS im Container**; Treiber: IPP Everywhere + `printer-driver-all`, HPLIP, Gutenprint.
 - **Keine Secrets im Repo:** `.env`, `data/`, `uploads/`, `*.db`, CUPS-Spool/Logs sind ignoriert. Der DeepSeek-Key liegt nur in `~/.local/share/opencode/auth.json`.
 - **Kein DeepSeek Pro.** Alle Agents verwenden `deepseek/deepseek-flash`; Reasoning-Variante bewusst wählen (`low`/`medium`/`high`). Die kostenlosen opencode-Modelle sind wegen erschöpftem Free-Quota nicht als Default zu verwenden.
@@ -116,7 +117,8 @@ Regel: Reasoning-Variante abschwächen, wenn die Aufgabe einfach ist (`docs`, Bo
 - Backend: 49 `pytest`-Tests grün (inkl. SPA-Fallback); `/healthz`, Admin-Login, Nutzer-/Drucker-CRUD, Jobs, Statistik, Discovery und Queue-Lebenszyklus funktionieren.
 - Frontend: TypeScript-Check, Vite-Build und 6 Vitest-Tests grün; Playwright 24 gemockte + 1 Integrationstest grün.
 - Docker-Build in dieser Umgebung noch unverifiziert (Docker-Daemon für `docker run/build` gesperrt); `docker compose config` ist valide. CUPS-PDF-E2E braucht Docker.
-- Nächster Schritt vor Produktivbetrieb: Docker-/CUPS-PDF-Verifikation auf dem Zielhost (`docs/release.md`).
+- Compose enthält `printtool-proxy` (Caddy) im externen Netz `traefik`; `HOST` und `TRAEFIK_CERT_RESOLVER` kommen aus `.env`.
+- Nächster Schritt vor Produktivbetrieb: Docker-/CUPS-PDF-/Traefik-Verifikation auf dem Zielhost (`docs/release.md`).
 
 ## Wichtige Dateien
 

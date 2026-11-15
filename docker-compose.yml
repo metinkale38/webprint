@@ -4,6 +4,7 @@ services:
       context: .
     image: printtool:latest
     container_name: printtool
+    # Host-Netz ist Pflicht für CUPS/mDNS-Discovery.
     network_mode: host
     env_file:
       - path: .env
@@ -24,3 +25,27 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+
+  # Brücke zwischen Traefik-Netz und der App im Host-Netz.
+  proxy:
+    image: caddy:2-alpine
+    container_name: printtool-proxy
+    entrypoint: ["caddy"]
+    command: ["reverse-proxy", "--from", ":8080", "--to", "http://host.docker.internal:8000"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.printtool.rule=Host(`${HOST:?HOST muss in .env gesetzt sein}`)"
+      - "traefik.http.routers.printtool.entrypoints=websecure"
+      - "traefik.http.routers.printtool.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-myresolver}"
+      - "traefik.http.services.printtool.loadbalancer.server.port=8080"
+    restart: unless-stopped
+
+networks:
+  traefik:
+    name: traefik
+    external: true

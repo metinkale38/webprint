@@ -22,13 +22,27 @@ Vue-3-WebUI (mobile-first, deutsch) und lokale Benutzerverwaltung.
 
 ```bash
 cp .env.example .env
-# ADMIN_PASSWORD und JWT_SECRET in .env ändern!
+# HOST, ADMIN_PASSWORD, JWT_SECRET und TRAEFIK_CERT_RESOLVER anpassen
+docker network create traefik   # falls das externe Traefik-Netz noch nicht existiert
 docker compose up -d --build
 ```
 
-Danach `http://<host-ip>:8000` öffnen und mit den Admin-Zugangsdaten aus `.env`
-anmelden. CUPS läuft im Host-Netzwerk auf Port 631; dieser Port muss auf dem Host
-frei sein (ggf. Host-CUPS stoppen).
+Danach `https://<HOST>` über Traefik öffnen; direkt erreichbar bleibt
+`http://<host-ip>:8000`. CUPS läuft im Host-Netzwerk auf Port 631; dieser Port
+muss auf dem Host frei sein (ggf. Host-CUPS stoppen).
+
+## Traefik / HTTPS
+
+Die App bleibt für CUPS/mDNS im Host-Netz. Ein schlanker Caddy-Proxy
+(`printtool-proxy`) hängt im externen `traefik`-Netz und leitet an
+`host.docker.internal:8000` weiter; die Traefik-Labels sitzen auf diesem Proxy.
+
+- `HOST` in `.env` = öffentliche Domain
+- `TRAEFIK_CERT_RESOLVER` = Name des Certresolvers in der Traefik-Konfiguration
+- Externes Docker-Netz `traefik` muss existieren
+- Router/Service: `printtool`, EntryPoint `websecure`, Service-Port `8080`
+- Für HTTPS `COOKIE_SECURE=true` setzen
+- Ohne Traefik bleibt die App direkt unter `http://<host-ip>:8000` erreichbar
 
 ## Entwicklung
 
@@ -65,6 +79,8 @@ Siehe `.env.example`. Wichtige Variablen:
 
 | Variable | Zweck |
 |---|---|
+| `HOST` | Öffentliche Domain für den Traefik-Router |
+| `TRAEFIK_CERT_RESOLVER` | Certresolver-Name in Traefik (Default `myresolver`) |
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Admin-Bootstrap beim ersten Start |
 | `JWT_SECRET` | Signatur der Session-Cookies (min. 32 Zeichen) |
 | `DATABASE_URL` | SQLite-Pfad, im Container `sqlite:////app/data/app.db` |

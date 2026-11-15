@@ -8,6 +8,8 @@ Stand: 2026-11-15 (v0.8.1)
 - Port 631 auf dem Host frei (Host-CUPS ggf. stoppen)
 - `network_mode: host` (für mDNS und Subnetz-Scan)
 - Zielhost im selben Netz wie die Drucker; für andere VLANs `DISCOVERY_SUBNETS` setzen
+- Für HTTPS: laufendes Traefik mit externem Docker-Netz `traefik` und Certresolver
+  (Name in `TRAEFIK_CERT_RESOLVER`, Default `myresolver`)
 
 ## Erstinstallation
 
@@ -15,12 +17,29 @@ Stand: 2026-11-15 (v0.8.1)
 git clone <repo> printtool
 cd printtool
 cp .env.example .env
-# ADMIN_PASSWORD, JWT_SECRET, CUPS_PASSWORD und ggf. DISCOVERY_SUBNETS anpassen
+# HOST, ADMIN_PASSWORD, JWT_SECRET, CUPS_PASSWORD und ggf. DISCOVERY_SUBNETS anpassen
+docker network create traefik   # falls das externe Netz noch nicht existiert
 docker compose up -d --build
 docker compose logs -f app
 ```
 
-Danach `http://<host-ip>:8000` öffnen und mit den Admin-Zugangsdaten anmelden.
+Danach `https://<HOST>` über Traefik öffnen (oder direkt `http://<host-ip>:8000`)
+und mit den Admin-Zugangsdaten anmelden.
+
+## Traefik / HTTPS
+
+Die App bleibt im Host-Netz, damit CUPS/mDNS funktionieren. Der zusätzliche
+Service `printtool-proxy` (Caddy) hängt im externen `traefik`-Netz und leitet an
+`host.docker.internal:8000` weiter. Die Traefik-Labels liegen auf dem Proxy.
+
+- `HOST` ist die öffentliche Domain (`Host(...)`-Regel).
+- `TRAEFIK_CERT_RESOLVER` muss dem Certresolver in der Traefik-Konfiguration entsprechen.
+- Bei HTTPS `COOKIE_SECURE=true` setzen; für direkten HTTP-Zugriff auf Port 8000 `false`.
+- Router/Service heißen `printtool`, der EntryPoint ist `websecure`, der interne
+  Service-Port ist `8080`.
+- Das externe Netz muss existieren: `docker network create traefik`.
+- Ohne Traefik ist die App weiterhin direkt unter `http://<host-ip>:8000` erreichbar;
+  der Proxy läuft dann ohne Nutzen mit.
 
 ## Drucker einrichten
 
