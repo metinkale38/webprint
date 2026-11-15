@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
+import { apiErrorMessage } from '@/api/errors'
 import JobStatusBadge from '@/components/JobStatusBadge.vue'
 import { useJobsStore } from '@/stores/jobs'
 
 const jobs = useJobsStore()
+const actionError = ref('')
 let refreshTimer: number | undefined
 
 function hasActiveJobs(): boolean {
@@ -31,10 +33,14 @@ function formatDate(value: string): string {
 }
 
 async function cancel(id: number): Promise<void> {
+  if (!window.confirm('Druckauftrag wirklich abbrechen?')) {
+    return
+  }
   try {
     await jobs.cancel(id)
-  } catch {
-    // Der Status bleibt in der Liste sichtbar; Details liefert die API.
+    actionError.value = ''
+  } catch (reason: any) {
+    actionError.value = apiErrorMessage(reason, 'Auftrag konnte nicht abgebrochen werden.')
   }
 }
 </script>
@@ -51,11 +57,16 @@ async function cancel(id: number): Promise<void> {
       </button>
     </header>
 
+    <p v-if="actionError" class="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+      {{ actionError }}
+    </p>
+
     <p v-if="jobs.loading" class="card text-sm text-slate-500">Aufträge werden geladen…</p>
     <p v-else-if="jobs.error" class="card text-sm text-red-700" role="alert">{{ jobs.error }}</p>
-    <p v-else-if="jobs.items.length === 0" class="card text-sm text-slate-500">
-      Noch keine Aufträge vorhanden.
-    </p>
+    <div v-else-if="jobs.items.length === 0" class="card space-y-2 text-sm text-slate-500">
+      <p>Noch keine Aufträge vorhanden.</p>
+      <RouterLink to="/print" class="font-medium text-brand-600">Jetzt etwas drucken</RouterLink>
+    </div>
 
     <div v-else class="space-y-3">
       <article v-for="job in jobs.items" :key="job.id" class="card space-y-2">
