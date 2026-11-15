@@ -87,6 +87,54 @@ def list_queues() -> list[str]:
     return names
 
 
+def _job_ids(args: list[str]) -> set[str]:
+    result = _run(["lpstat", *args, "-o"])
+    if result is None or result.returncode != 0:
+        return set()
+    ids: set[str] = set()
+    for line in result.stdout.splitlines():
+        parts = line.split()
+        if parts:
+            ids.add(parts[0])
+    return ids
+
+
+def active_job_ids() -> set[str]:
+    return _job_ids(["-W", "not-completed"])
+
+
+def completed_job_ids() -> set[str]:
+    return _job_ids(["-W", "completed"])
+
+
+def job_status(cups_job_id: str) -> str:
+    if not cups_job_id.strip():
+        return "unknown"
+    if cups_job_id in active_job_ids():
+        return "processing"
+    if cups_job_id in completed_job_ids():
+        return "completed"
+    return "unknown"
+
+
+def printer_options(queue: str) -> dict[str, list[str]]:
+    if not valid_queue_name(queue):
+        return {}
+    result = _run(["lpoptions", "-p", queue, "-l"])
+    if result is None or result.returncode != 0:
+        return {}
+    options: dict[str, list[str]] = {}
+    for line in result.stdout.splitlines():
+        if ":" not in line:
+            continue
+        key_part, values_part = line.split(":", 1)
+        key = key_part.split("/", 1)[0].strip()
+        values = [value.lstrip("*") for value in values_part.split() if value]
+        if key:
+            options[key] = values
+    return options
+
+
 def _parse_value(raw: str) -> bool | str | list[str]:
     value = raw.strip()
     if value.lower() == "true":

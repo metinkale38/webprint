@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     discovery_subnets: str = ""
     discovery_interval: int = 300
     snmp_community: str = "public"
+    job_sync_enabled: bool = True
+    job_sync_interval: int = 15
     timezone: str = "Europe/Berlin"
 
     cups_pdf_queue: str = ""
