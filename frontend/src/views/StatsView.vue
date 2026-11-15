@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 
 import api from '@/api/client'
+import { apiErrorMessage } from '@/api/errors'
 import type { StatsOverview, StatsRow } from '@/types'
 
 const overview = ref<StatsOverview | null>(null)
@@ -26,7 +27,7 @@ async function load(): Promise<void> {
     overview.value = overviewResponse.data
     rows.value = usersResponse.data
   } catch (reason: any) {
-    error.value = reason?.response?.data?.detail ?? 'Statistik konnte nicht geladen werden.'
+    error.value = apiErrorMessage(reason, 'Statistik konnte nicht geladen werden.')
   } finally {
     loading.value = false
   }

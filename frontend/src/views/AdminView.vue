@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 
 import api from '@/api/client'
+import { apiErrorMessage } from '@/api/errors'
 import { usePrintersStore } from '@/stores/printers'
 import type { User } from '@/types'
 
@@ -20,7 +21,7 @@ async function loadUsers(): Promise<void> {
     const { data } = await api.get<User[]>('/users')
     users.value = data
   } catch (reason: any) {
-    error.value = reason?.response?.data?.detail ?? 'Nutzer konnten nicht geladen werden.'
+    error.value = apiErrorMessage(reason, 'Nutzer konnten nicht geladen werden.')
   }
 }
 
@@ -31,7 +32,7 @@ async function scan(): Promise<void> {
     const result = await printers.scan()
     scanMessage.value = `${result.found} gefunden, ${result.created} neu, ${result.updated} aktualisiert.`
   } catch (reason: any) {
-    error.value = reason?.response?.data?.detail ?? 'Scan fehlgeschlagen.'
+    error.value = apiErrorMessage(reason, 'Scan fehlgeschlagen.')
   }
 }
 </script>
