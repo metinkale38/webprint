@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     discovery_interval: int = 300
     timezone: str = "Europe/Berlin"
 
+    cups_pdf_queue: str = ""
+
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
     @property
