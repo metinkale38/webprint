@@ -1,8 +1,9 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .api import auth, jobs, printers, stats, system, users
@@ -48,6 +49,39 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def limit_request_size(request: Request, call_next):
+    content_length = request.headers.get("content-length")
+    if content_length is not None:
+        try:
+            length = int(content_length)
+        except ValueError:
+            return JSONResponse(status_code=400, content={"detail": "Ungültiger Content-Length"})
+        max_bytes = settings.upload_max_mb * 1024 * 1024 + 1_000_000
+        if length > max_bytes:
+            return JSONResponse(status_code=413, content={"detail": "Datei zu groß"})
+    return await call_next(request)
+
+
+@app.middleware("http")
+async def security_headers(_request: Request, call_next):
+    response = await call_next(_request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    response.headers.setdefault(
+        "Permissions-Policy", "geolocation=(), microphone=(), camera=()"
+    )
+    response.headers.setdefault(
+        "Content-Security-Policy",
+        "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+        "font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; "
+        "form-action 'self'",
+    )
+    return response
+
 
 app.include_router(system.router)
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])

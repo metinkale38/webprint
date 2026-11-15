@@ -80,7 +80,11 @@ async def create_job(
             media=media,
         )
     except ValidationError as exc:
-        raise HTTPException(status_code=422, detail=exc.errors()) from exc
+        details = [
+            {"loc": list(error["loc"]), "msg": error["msg"], "type": error["type"]}
+            for error in exc.errors()
+        ]
+        raise HTTPException(status_code=422, detail=details) from exc
 
     stored_name = f"{uuid4().hex}{extension}"
     settings.upload_dir.mkdir(parents=True, exist_ok=True)
