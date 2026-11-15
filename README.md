@@ -66,6 +66,8 @@ Siehe `.env.example`. Wichtige Variablen:
 | `DISCOVERY_SUBNETS` | Kommagetrennte Subnetze für den aktiven Scan |
 | `DISCOVERY_INTERVAL` | Scan-Intervall in Sekunden |
 | `SNMP_COMMUNITY` | SNMP-Community (Default `public`) |
+| `JOB_SYNC_ENABLED` | CUPS-Jobstatus periodisch in die DB übernehmen |
+| `JOB_SYNC_INTERVAL` | Intervall des Job-Status-Syncs in Sekunden |
 | `COOKIE_SECURE` | `true` hinter HTTPS |
 | `CUPS_ADMIN` / `CUPS_PASSWORD` | Optionaler CUPS-WebUI-Zugang |
 | `CUPS_PDF_QUEUE` | Optionaler virtueller PDF-Drucker (z. B. `printtool-pdf` für E2E) |
@@ -83,4 +85,5 @@ M0: Repo, Agent-Doku, Backend-/Frontend-Scaffold, Docker-/Playwright-Gerüst.
 M1: CUPS-Service (Queues, Status, IPP-Probe), Entrypoint und virtueller PDF-Drucker.
 M2: API-Härtung (Rate-Limit, Security-Header, Validierung), Nutzer-/Drucker-CRUD, Jobs/Statistik.
 M3: Discovery per mDNS, Subnetz-Scan, optionale SNMP-Anreicherung und automatische Queue-Anlage.
-Nächste Meilensteine: Druckjob-Status, Admin-UI, E2E/visuelle Tests.
+M4: Job-Status-Sync mit CUPS, Farboptions-Fallback und Live-Polling der Aufträge.
+Nächste Meilensteine: Admin-UI, E2E/visuelle Tests, Release.

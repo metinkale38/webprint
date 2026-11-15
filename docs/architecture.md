@@ -63,6 +63,12 @@ Browser ──HTTP──> FastAPI ──> SQLite (data/app.db)
 | Papier | `-o media=A4|Letter|...` |
 | Qualität | `-o print-quality=3|4|5` (optional) |
 
+Bei PPD-basierten Queues wird die Farboption automatisch auf `ColorModel` oder
+`OutputMode` abgebildet (Erkennung via `lpoptions -p <queue> -l`). Die Job-ID aus
+`lp` (`request id is <queue>-<id>`) wird gespeichert; ein Hintergrund-Loop
+(`JOB_SYNC_INTERVAL`) gleicht `lpstat -W not-completed/completed` ab, zusätzlich
+aktualisiert `GET /api/jobs/{id}` den Status direkt.
+
 ## CUPS-Queues und virtueller PDF-Drucker
 
 - Jeder Drucker wird als CUPS-Queue mit sicherem Slug angelegt:
