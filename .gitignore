@@ -24,6 +24,7 @@ frontend/.cache/
 # Daten / Uploads / Runtime
 data/
 uploads/
+cups-pdf/
 *.db
 *.db-shm
 *.db-wal

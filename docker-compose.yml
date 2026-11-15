@@ -13,6 +13,7 @@ services:
     volumes:
       - ./data:/app/data
       - ./uploads:/app/uploads
+      - ./cups-pdf:/var/spool/cups-pdf
       - cups-config:/etc/cups
       - cups-spool:/var/spool/cups
       - cups-log:/var/log/cups

@@ -64,6 +64,7 @@ Siehe `.env.example`. Wichtige Variablen:
 | `DISCOVERY_INTERVAL` | Scan-Intervall in Sekunden |
 | `COOKIE_SECURE` | `true` hinter HTTPS |
 | `CUPS_ADMIN` / `CUPS_PASSWORD` | Optionaler CUPS-WebUI-Zugang |
+| `CUPS_PDF_QUEUE` | Optionaler virtueller PDF-Drucker (z. B. `printtool-pdf` für E2E) |
 
 ## Architektur & Agenten
 
@@ -75,4 +76,5 @@ Siehe `.env.example`. Wichtige Variablen:
 ## Status
 
 M0: Repo, Agent-Doku, Backend-/Frontend-Scaffold, Docker-/Playwright-Gerüst.
-Nächste Meilensteine: CUPS/Discovery, Druckjobs, Admin-UI, E2E/visuelle Tests.
+M1: CUPS-Service (Queues, Status, IPP-Probe), Entrypoint und virtueller PDF-Drucker.
+Nächste Meilensteine: API-Vervollständigung, Discovery, Druckjobs, Admin-UI, E2E/visuelle Tests.
