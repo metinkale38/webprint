@@ -1,13 +1,29 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 
 import JobStatusBadge from '@/components/JobStatusBadge.vue'
 import { useJobsStore } from '@/stores/jobs'
 
 const jobs = useJobsStore()
+let refreshTimer: number | undefined
+
+function hasActiveJobs(): boolean {
+  return jobs.items.some((job) => ['queued', 'processing'].includes(job.status))
+}
 
 onMounted(() => {
   void jobs.fetch()
+  refreshTimer = window.setInterval(() => {
+    if (hasActiveJobs()) {
+      void jobs.fetch(false, true)
+    }
+  }, 5000)
+})
+
+onUnmounted(() => {
+  if (refreshTimer !== undefined) {
+    window.clearInterval(refreshTimer)
+  }
 })
 
 function formatDate(value: string): string {

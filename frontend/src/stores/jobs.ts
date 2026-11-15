@@ -16,8 +16,10 @@ export const useJobsStore = defineStore('jobs', {
     error: '',
   }),
   actions: {
-    async fetch(all = false): Promise<void> {
-      this.loading = true
+    async fetch(all = false, silent = false): Promise<void> {
+      if (!silent) {
+        this.loading = true
+      }
       this.error = ''
       try {
         const { data } = await api.get<PrintJob[]>('/jobs', { params: { all_jobs: all } })
